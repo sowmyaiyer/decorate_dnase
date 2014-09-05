@@ -1,8 +1,12 @@
-cols <- c("purple4","red","blue","green","yellow","purple","orange",
-          "pink","black","grey","rosybrown","lightblue",
-          "lightgreen","hotpink","brown","wheat3","snow",
-          "maroon1","darkblue","darkgreen","tomato",
-          "turquoise","orchid","orangered4","yellowgreen","magenta")
+cols <- c("gray","gray","rosybrown","rosybrown","yellow","yellow","pink",
+          "pink","lightblue","lightblue","lightblue","lightblue",
+          "yellow","pink","yellowgreen","pink","gray",
+          "yellowgreen","yellowgreen","yellowgreen","darkslategray4",
+          "darkslategray4","darkslategray4","darkslategray4","yellowgreen","yellowgreen")
+
+
+cols_list <- list("other"="gray", "Ctcf"="rosybrown", "Dnase/Faire"="yellow", "Elon/H4K20"="pink","enhancer"="lightblue","promoter"="yellowgreen","repressed"="darkslategray4")
+
 cell <- commandArgs(TRUE)[1]
 pdf(paste("chromHmm.",cell,".V2.pdf",sep=""))
 par(xpd=T, mar=par()$mar+c(0,0,0,10))
@@ -44,10 +48,10 @@ distal_random_low <- distal_random_low[order(distal_dnase_high[,1]),]
 
 distal <- cbind(distal_dnase_high[,2],distal_random_high[,2],distal_dnase_low[,2],distal_random_low[,2])
 rownames(distal) <- distal_dnase_high[,1]
-bp_coords <- barplot(distal, beside=FALSE, cex.main=0.9, col=cols, las=2, main=paste(cell, "distal"), xaxt="n", ylim=c(0,1), cex.axis=0.6)
+bp_coords <- barplot(distal, beside=FALSE, cex.main=0.9, col=cols, las=2, main=paste(cell, "distal"), xaxt="n", ylim=c(0,1), cex.axis=0.6, border=NA)
 axis(1, at=bp_coords, c("dnase(top 5% H3K27ac)", "dnase(other)", "rand(top 5% H3K27ac)","rand(other)"), cex=0.6, cex.axis=0.6)
-legend(5,1, rownames(distal), col=cols,pch=15, bty="n", cex=0.6)
-
+#legend(5,1, rownames(distal), col=cols,pch=15, bty="n", cex=0.6)
+legend(5,1, names(cols_list), col=unlist(cols_list), pch=15, bty="n", cex=0.6)
 
 
 proximal_dnase_high <- as.data.frame(read.table(paste(cell,"_dnase_high_H3K27ac_intersect_chromHmm.25.states.proximal.counts.txt",sep="")))	
@@ -68,8 +72,7 @@ proximal_random_low <- proximal_random_low[order(proximal_dnase_high[,1]),]
 
 proximal <- cbind(proximal_dnase_high[,2],proximal_random_high[,2],proximal_dnase_low[,2],proximal_random_low[,2])
 rownames(proximal) <- proximal_dnase_high[,1]
-bp_coords <- barplot(proximal, beside=FALSE, cex.main=0.9, col=cols, las=2, main=paste(cell, "proximal"), xaxt="n", ylim=c(0,1), cex.axis=0.6)
+bp_coords <- barplot(proximal, beside=FALSE, cex.main=0.9, col=cols, las=2, main=paste(cell, "proximal"), xaxt="n", ylim=c(0,1), cex.axis=0.6,border=NA)
 axis(1, at=bp_coords, c("dnase(top 5% H3K27ac)", "dnase(other)", "rand(top 5% H3K27ac)","rand(other)"), cex=0.6, cex.axis=0.6)
-legend(5,1, rownames(proximal), col=cols,pch=15, bty="n", cex=0.6)
-
+legend(5,1, names(cols_list), col=unlist(cols_list), pch=15, bty="n", cex=0.6)
 dev.off()
