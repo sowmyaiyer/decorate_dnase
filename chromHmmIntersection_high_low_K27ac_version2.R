@@ -39,111 +39,144 @@ total_peaks_in_proximal_dnase_peaks <- nrow(dnase_proximal_H3K27ac_table)
 total_peaks_in_proximal_random_peaks <- nrow(random_proximal_H3K27ac_table)
 cat(total_peaks_in_proximal_dnase_peaks == total_peaks_in_proximal_random_peaks,"\n")
 
-chipseq_dnase_high_H3K27ac_distal <- length(which(scan(paste(cell,"_dnase_high_H3K27ac_intersect_mergedChipSeq.distal.txt",sep=""),what="numeric") > 0))/total_peaks_distal_dnase_peaks
-chipseq_dnase_low_H3K27ac_distal <- length(which(scan(paste(cell,"_dnase_low_H3K27ac_intersect_mergedChipSeq.distal.txt",sep=""),what="numeric") > 0))/total_peaks_distal_dnase_peaks
-chipseq_random_high_H3K27ac_distal <- length(which(scan(paste(cell,"_random_high_H3K27ac_intersect_mergedChipSeq.distal.txt",sep=""),what="numeric") >0))/total_peaks_in_distal_random_peaks
-chipseq_random_low_H3K27ac_distal <- length(which(scan(paste(cell,"_random_low_H3K27ac_intersect_mergedChipSeq.distal.txt",sep=""),what="numeric") > 0))/total_peaks_in_distal_random_peaks
-
-
-#bg_H3K27_distal_values <- as.numeric(random_distal_H3K27ac_table[,ncol(random_distal_H3K27ac_table)])
-#iles_5 <- quantile(bg_H3K27_distal_values, prob=seq(0,1,0.05))
-#distal_threshold <- as.numeric(iles_5[length(iles_5)-1]) # last ile
-
-#bg_H3K27_proximal_values <- as.numeric(random_proximal_H3K27ac_table[,ncol(random_proximal_H3K27ac_table)])
-#iles_5 <- quantile(bg_H3K27_proximal_values, prob=seq(0,1,0.05))
-#proximal_threshold <- as.numeric(iles_5[length(iles_5)-1]) # last ile
 
 mat_barplot_distal <- matrix(nrow=length(grouping), ncol=4)
 rownames(mat_barplot_distal) <- names(grouping)
 colnames(mat_barplot_distal) <- c("dnase_high_H3K27ac","dnase_low_H3K27ac", "random_high_H3K27ac","random_low_H3K27ac")
 
+mat_barplot_chipseq_distal <- matrix(nrow=length(grouping), ncol=4)
+rownames(mat_barplot_chipseq_distal) <- names(grouping)
+colnames(mat_barplot_chipseq_distal) <- c("dnase_high_H3K27ac_chipseq","dnase_low_H3K27ac_chipseq", "random_high_H3K27ac_chipseq","random_low_H3K27ac_chipseq")
+
 distal_dnase_high <- as.data.frame(read.table(paste(cell,"_dnase_high_H3K27ac_intersect_chromHmm.25.states.distal.counts.txt",sep="")))
 distal_dnase_high[,2] <- distal_dnase_high[,2]/total_peaks_distal_dnase_peaks
 distal_dnase_high <- distal_dnase_high[order(distal_dnase_high[,1]),]
+
+distal_dnase_high_chipseq <- as.data.frame(read.table(paste(cell,"_dnase_high_H3K27ac_intersect_chipSeq_intersect_chromHmm.25.states.distal.counts.txt",sep="")))
+distal_dnase_high_chipseq[,2] <- distal_dnase_high_chipseq[,2]/total_peaks_distal_dnase_peaks
+distal_dnase_high_chipseq <- distal_dnase_high_chipseq[order(distal_dnase_high_chipseq[,1]),]
 for (group in rownames(mat_barplot_distal))
 {
 	mat_barplot_distal[group,"dnase_high_H3K27ac"] <- sum(distal_dnase_high[match(grouping[[group]],distal_dnase_high[,1]),2])
+	mat_barplot_chipseq_distal[group,"dnase_high_H3K27ac_chipseq"] <- sum(distal_dnase_high_chipseq[match(grouping[[group]],distal_dnase_high_chipseq[,1]),2])
 }
 
 distal_dnase_low <- as.data.frame(read.table(paste(cell,"_dnase_low_H3K27ac_intersect_chromHmm.25.states.distal.counts.txt",sep="")))
 distal_dnase_low[,2] <- distal_dnase_low[,2]/total_peaks_distal_dnase_peaks
 distal_dnase_low <- distal_dnase_low[order(distal_dnase_high[,1]),]
-print(sum(c(distal_dnase_low[,2], distal_dnase_high[,2])))
+
+distal_dnase_low_chipseq <- as.data.frame(read.table(paste(cell,"_dnase_low_H3K27ac_intersect_chipSeq_intersect_chromHmm.25.states.distal.counts.txt",sep="")))
+distal_dnase_low_chipseq[,2] <- distal_dnase_low_chipseq[,2]/total_peaks_distal_dnase_peaks
+distal_dnase_low_chipseq <- distal_dnase_low_chipseq[order(distal_dnase_high_chipseq[,1]),]
 for (group in rownames(mat_barplot_distal))
 {
         mat_barplot_distal[group,"dnase_low_H3K27ac"] <- sum(distal_dnase_low[match(grouping[[group]],distal_dnase_low[,1]),2])
+        mat_barplot_chipseq_distal[group,"dnase_low_H3K27ac_chipseq"] <- sum(distal_dnase_low_chipseq[match(grouping[[group]],distal_dnase_low_chipseq[,1]),2])
 }
+
 distal_random_high <- as.data.frame(read.table(paste(cell,"_random_high_H3K27ac_intersect_chromHmm.25.states.distal.counts.txt",sep="")))
 distal_random_high[,2] <- distal_random_high[,2]/total_peaks_in_distal_random_peaks
 distal_random_high <- distal_random_high[order(distal_dnase_high[,1]),]
+
+distal_random_high_chipseq <- as.data.frame(read.table(paste(cell,"_random_high_H3K27ac_intersect_chipSeq_intersect_chromHmm.25.states.distal.counts.txt",sep="")))
+distal_random_high_chipseq[,2] <- distal_random_high_chipseq[,2]/total_peaks_in_distal_random_peaks
+distal_random_high_chipseq <- distal_random_high_chipseq[order(distal_dnase_high_chipseq[,1]),]
 for (group in rownames(mat_barplot_distal))
 {
         mat_barplot_distal[group,"random_high_H3K27ac"] <- sum(distal_random_high[match(grouping[[group]],distal_random_high[,1]),2])
+        mat_barplot_chipseq_distal[group,"random_high_H3K27ac_chipseq"] <- sum(distal_random_high_chipseq[match(grouping[[group]],distal_random_high_chipseq[,1]),2])
 }
 
 distal_random_low <- as.data.frame(read.table(paste(cell,"_random_low_H3K27ac_intersect_chromHmm.25.states.distal.counts.txt",sep="")))
 distal_random_low[,2] <- distal_random_low[,2]/total_peaks_in_distal_random_peaks
 distal_random_low <- distal_random_low[order(distal_dnase_high[,1]),]
+
+distal_random_low_chipseq <- as.data.frame(read.table(paste(cell,"_random_low_H3K27ac_intersect_chipSeq_intersect_chromHmm.25.states.distal.counts.txt",sep="")))
+distal_random_low_chipseq[,2] <- distal_random_low_chipseq[,2]/total_peaks_in_distal_random_peaks
+distal_random_low_chipseq <- distal_random_low_chipseq[order(distal_dnase_high_chipseq[,1]),]
 for (group in rownames(mat_barplot_distal))
 {
         mat_barplot_distal[group,"random_low_H3K27ac"] <- sum(distal_random_low[match(grouping[[group]],distal_random_low[,1]),2])
+        mat_barplot_chipseq_distal[group,"random_low_H3K27ac_chipseq"] <- sum(distal_random_low_chipseq[match(grouping[[group]],distal_random_low_chipseq[,1]),2])
 }
 bp_coords <- barplot(mat_barplot_distal, beside=FALSE, cex.main=0.9, col=unlist(cols_list), las=2, main=paste(cell, "distal"), xaxt="n", ylim=c(0,1), cex.axis=0.6, border=NA, space=c(2,2,2,2))
-barplot(chipseq_dnase_high_H3K27ac_distal, space=bp_coords[1]+0.5, col="black", add=TRUE, axes=FALSE)
-barplot(chipseq_dnase_low_H3K27ac_distal, space=bp_coords[2]+0.5, col="black", add=TRUE, axes=FALSE)
-barplot(chipseq_random_high_H3K27ac_distal, space=bp_coords[3]+0.5, col="black", add=TRUE, axes=FALSE)
-barplot(chipseq_random_low_H3K27ac_distal, space=bp_coords[4]+0.5, col="black", add=TRUE, axes=FALSE)
+barplot(as.matrix(mat_barplot_chipseq_distal[,"dnase_high_H3K27ac_chipseq"]),  space=bp_coords[1]+0.5, beside=FALSE, cex.main=0.9, col=unlist(cols_list), axes=FALSE, add=TRUE, border=NA)
+barplot(as.matrix(mat_barplot_chipseq_distal[,"dnase_low_H3K27ac_chipseq"]),  space=bp_coords[2]+0.5, beside=FALSE, cex.main=0.9, col=unlist(cols_list), axes=FALSE, add=TRUE, border=NA)
+barplot(as.matrix(mat_barplot_chipseq_distal[,"random_high_H3K27ac_chipseq"]),  space=bp_coords[3]+0.5, beside=FALSE, cex.main=0.9, col=unlist(cols_list), axes=FALSE, add=TRUE, border=NA)
+barplot(as.matrix(mat_barplot_chipseq_distal[,"random_low_H3K27ac_chipseq"]),  space=bp_coords[4]+0.5, beside=FALSE, cex.main=0.9, col=unlist(cols_list), axes=FALSE, add=TRUE, border=NA)
+#legend(15,0.8, c(names(cols_list),"fraction with ChIP-seq intersection"), col=c(unlist(cols_list),"black"), pch=15, bty="n", cex=0.8, pt.cex=1.2)
 text(x=bp_coords+0.5,  par("usr")[3]-0.01, labels=colnames(mat_barplot_distal), cex=0.6, srt = 30, pos = 2, xpd = TRUE)
-legend(15,0.8, c(names(cols_list),"fraction with ChIP-seq intersection"), col=c(unlist(cols_list),"black"), pch=15, bty="n", cex=0.8, pt.cex=1.2)
+legend(15,0.8, names(cols_list), col=unlist(cols_list), pch=15, bty="n", cex=0.8, pt.cex=1.2)
 
-
-chipseq_dnase_high_H3K27ac_proximal <- length(which(scan(paste(cell,"_dnase_high_H3K27ac_intersect_mergedChipSeq.proximal.txt",sep=""),what="numeric") > 0))/total_peaks_in_proximal_dnase_peaks
-chipseq_dnase_low_H3K27ac_proximal <- length(which(scan(paste(cell,"_dnase_low_H3K27ac_intersect_mergedChipSeq.proximal.txt",sep=""),what="numeric") > 0))/total_peaks_in_proximal_dnase_peaks
-chipseq_random_high_H3K27ac_proximal <- length(which(scan(paste(cell,"_random_high_H3K27ac_intersect_mergedChipSeq.proximal.txt",sep=""),what="numeric") >0))/total_peaks_in_proximal_random_peaks
-chipseq_random_low_H3K27ac_proximal <- length(which(scan(paste(cell,"_random_low_H3K27ac_intersect_mergedChipSeq.proximal.txt",sep=""),what="numeric") > 0))/total_peaks_in_proximal_random_peaks
 
 mat_barplot_proximal <- matrix(nrow=length(grouping), ncol=4)
 rownames(mat_barplot_proximal) <- names(grouping)
 colnames(mat_barplot_proximal) <-  c("dnase_high_H3K27ac","dnase_low_H3K27ac", "random_high_H3K27ac","random_low_H3K27ac")
 
+mat_barplot_chipseq_proximal <- matrix(nrow=length(grouping), ncol=4)
+rownames(mat_barplot_chipseq_proximal) <- names(grouping)
+colnames(mat_barplot_chipseq_proximal) <- c("dnase_high_H3K27ac_chipseq","dnase_low_H3K27ac_chipseq", "random_high_H3K27ac_chipseq","random_low_H3K27ac_chipseq")
+
+
 proximal_dnase_high <- as.data.frame(read.table(paste(cell,"_dnase_high_H3K27ac_intersect_chromHmm.25.states.proximal.counts.txt",sep="")))	
 proximal_dnase_high[,2] <- proximal_dnase_high[,2]/total_peaks_in_proximal_dnase_peaks
 proximal_dnase_high <- proximal_dnase_high[order(proximal_dnase_high[,1]),]
+
+proximal_dnase_high_chipseq <- as.data.frame(read.table(paste(cell,"_dnase_high_H3K27ac_intersect_chipSeq_intersect_chromHmm.25.states.proximal.counts.txt",sep="")))
+proximal_dnase_high_chipseq[,2] <- proximal_dnase_high_chipseq[,2]/total_peaks_in_proximal_dnase_peaks
+proximal_dnase_high_chipseq <- proximal_dnase_high_chipseq[order(proximal_dnase_high_chipseq[,1]),]
 for (group in rownames(mat_barplot_proximal))
 {
         mat_barplot_proximal[group,"dnase_high_H3K27ac"] <- sum(proximal_dnase_high[match(grouping[[group]],proximal_dnase_high[,1]),2])
+        mat_barplot_chipseq_proximal[group,"dnase_high_H3K27ac_chipseq"] <- sum(proximal_dnase_high_chipseq[match(grouping[[group]],proximal_dnase_high_chipseq[,1]),2])
 }
 
 proximal_dnase_low <- as.data.frame(read.table(paste(cell,"_dnase_low_H3K27ac_intersect_chromHmm.25.states.proximal.counts.txt",sep="")))	
 proximal_dnase_low[,2] <- proximal_dnase_low[,2]/total_peaks_in_proximal_dnase_peaks
 proximal_dnase_low <- proximal_dnase_low[order(proximal_dnase_high[,1]),]
+
+proximal_dnase_low_chipseq <- as.data.frame(read.table(paste(cell,"_dnase_low_H3K27ac_intersect_chipSeq_intersect_chromHmm.25.states.proximal.counts.txt",sep="")))
+proximal_dnase_low_chipseq[,2] <- proximal_dnase_low_chipseq[,2]/total_peaks_in_proximal_dnase_peaks
+proximal_dnase_low_chipseq <- proximal_dnase_low_chipseq[order(proximal_dnase_high_chipseq[,1]),]
 for (group in rownames(mat_barplot_proximal))
 {
         mat_barplot_proximal[group,"dnase_low_H3K27ac"] <- sum(proximal_dnase_low[match(grouping[[group]],proximal_dnase_low[,1]),2])
+        mat_barplot_chipseq_proximal[group,"dnase_low_H3K27ac_chipseq"] <- sum(proximal_dnase_low_chipseq[match(grouping[[group]],proximal_dnase_low[,1]),2])
 }
 
 proximal_random_high <- as.data.frame(read.table(paste(cell,"_random_high_H3K27ac_intersect_chromHmm.25.states.proximal.counts.txt",sep="")))	
 proximal_random_high[,2] <- proximal_random_high[,2]/total_peaks_in_proximal_random_peaks
 proximal_random_high <- proximal_random_high[order(proximal_dnase_high[,1]),]
+
+proximal_random_high_chipseq <- as.data.frame(read.table(paste(cell,"_random_high_H3K27ac_intersect_chipSeq_intersect_chromHmm.25.states.proximal.counts.txt",sep="")))
+proximal_random_high_chipseq[,2] <- proximal_random_high_chipseq[,2]/total_peaks_in_proximal_random_peaks
+proximal_random_high_chipseq <- proximal_random_high_chipseq[order(proximal_dnase_high_chipseq[,1]),]
 for (group in rownames(mat_barplot_proximal))
 {
         mat_barplot_proximal[group,"random_high_H3K27ac"] <- sum(proximal_random_high[match(grouping[[group]],proximal_random_high[,1]),2])
+        mat_barplot_chipseq_proximal[group,"random_high_H3K27ac_chipseq"] <- sum(proximal_random_high_chipseq[match(grouping[[group]],proximal_random_high_chipseq[,1]),2])
 }
 
 proximal_random_low <- as.data.frame(read.table(paste(cell,"_random_low_H3K27ac_intersect_chromHmm.25.states.proximal.counts.txt",sep="")))	
 proximal_random_low[,2] <- proximal_random_low[,2]/total_peaks_in_proximal_random_peaks
 proximal_random_low <- proximal_random_low[order(proximal_dnase_high[,1]),]
+
+proximal_random_low_chipseq <- as.data.frame(read.table(paste(cell,"_random_low_H3K27ac_intersect_chipSeq_intersect_chromHmm.25.states.proximal.counts.txt",sep="")))
+proximal_random_low_chipseq[,2] <- proximal_random_low_chipseq[,2]/total_peaks_in_proximal_random_peaks
+proximal_random_low_chipseq <- proximal_random_low_chipseq[order(proximal_dnase_high_chipseq[,1]),]
 for (group in rownames(mat_barplot_proximal))
 {
         mat_barplot_proximal[group,"random_low_H3K27ac"] <- sum(proximal_random_low[match(grouping[[group]],proximal_random_low[,1]),2])
+        mat_barplot_chipseq_proximal[group,"random_low_H3K27ac_chipseq"] <- sum(proximal_random_low_chipseq[match(grouping[[group]],proximal_random_low[,1]),2])
 }
 
 
 bp_coords <- barplot(mat_barplot_proximal, beside=FALSE, cex.main=0.9, col=unlist(cols_list), las=2, main=paste(cell, "proximal"), xaxt="n", ylim=c(0,1), cex.axis=0.6,border=NA,space=c(2,2,2,2))
-barplot(chipseq_dnase_high_H3K27ac_proximal, space=bp_coords[1]+0.5, col="black", add=TRUE, axes=FALSE)
-barplot(chipseq_dnase_low_H3K27ac_proximal, space=bp_coords[2]+0.5, col="black", add=TRUE, axes=FALSE)
-barplot(chipseq_random_high_H3K27ac_proximal, space=bp_coords[3]+0.5, col="black", add=TRUE, axes=FALSE)
-barplot(chipseq_random_low_H3K27ac_proximal, space=bp_coords[4]+0.5, col="black", add=TRUE, axes=FALSE)
+barplot(as.matrix(mat_barplot_chipseq_proximal[,"dnase_high_H3K27ac_chipseq"]),  space=bp_coords[1]+0.5, beside=FALSE, cex.main=0.9, col=unlist(cols_list), axes=FALSE, add=TRUE, border=NA)
+barplot(as.matrix(mat_barplot_chipseq_proximal[,"dnase_low_H3K27ac_chipseq"]),  space=bp_coords[2]+0.5, beside=FALSE, cex.main=0.9, col=unlist(cols_list), axes=FALSE, add=TRUE, border=NA)
+barplot(as.matrix(mat_barplot_chipseq_proximal[,"random_high_H3K27ac_chipseq"]),  space=bp_coords[3]+0.5, beside=FALSE, cex.main=0.9, col=unlist(cols_list), axes=FALSE, add=TRUE, border=NA)
+barplot(as.matrix(mat_barplot_chipseq_proximal[,"random_low_H3K27ac_chipseq"]),  space=bp_coords[4]+0.5, beside=FALSE, cex.main=0.9, col=unlist(cols_list), axes=FALSE, add=TRUE, border=NA)
 text(x=bp_coords+0.5,  par("usr")[3]-0.01, labels=colnames(mat_barplot_proximal), cex=0.6, srt = 30, pos = 2, xpd = TRUE)
-legend(15,0.8, c(names(cols_list),"fraction with ChIP-seq intersection"), col=c(unlist(cols_list),"black"), pch=15, bty="n", cex=0.8, pt.cex=1.2)
+#legend(15,0.8, c(names(cols_list),"fraction with ChIP-seq intersection"), col=c(unlist(cols_list),"black"), pch=15, bty="n", cex=0.8, pt.cex=1.2)
+legend(15,0.8, names(cols_list), col=unlist(cols_list), pch=15, bty="n", cex=0.8, pt.cex=1.2)
 dev.off()
