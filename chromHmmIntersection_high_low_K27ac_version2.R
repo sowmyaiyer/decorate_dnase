@@ -24,8 +24,8 @@ cols_list <- list("other"="gray",
 
 
 cell <- commandArgs(TRUE)[1]
-pdf(paste("chromHmm.",cell,".V2.pdf",sep=""))
-par(xpd=T, mar=par()$mar+c(0,0,0,10))
+pdf(paste("chromHmm.",cell,".withChipSeq.pdf",sep=""))
+par(xpd=T, mar=par()$mar+c(0,0,0,15))
 
 random_distal_H3K27ac_table <- as.data.frame(read.table(paste("mean_H3K27ac.",cell,".randombg3.distal.txt",sep="")))
 dnase_distal_H3K27ac_table <- as.data.frame(read.table(paste("mean_H3K27ac.",cell,".distal.txt",sep="")))
@@ -38,6 +38,12 @@ dnase_proximal_H3K27ac_table <- as.data.frame(read.table(paste("mean_H3K27ac.",c
 total_peaks_in_proximal_dnase_peaks <- nrow(dnase_proximal_H3K27ac_table)
 total_peaks_in_proximal_random_peaks <- nrow(random_proximal_H3K27ac_table)
 cat(total_peaks_in_proximal_dnase_peaks == total_peaks_in_proximal_random_peaks,"\n")
+
+chipseq_dnase_high_H3K27ac_distal <- length(which(scan(paste(cell,"_dnase_high_H3K27ac_intersect_mergedChipSeq.distal.txt",sep=""),what="numeric") > 0))/total_peaks_distal_dnase_peaks
+chipseq_dnase_low_H3K27ac_distal <- length(which(scan(paste(cell,"_dnase_low_H3K27ac_intersect_mergedChipSeq.distal.txt",sep=""),what="numeric") > 0))/total_peaks_distal_dnase_peaks
+chipseq_random_high_H3K27ac_distal <- length(which(scan(paste(cell,"_random_high_H3K27ac_intersect_mergedChipSeq.distal.txt",sep=""),what="numeric") >0))/total_peaks_in_distal_random_peaks
+chipseq_random_low_H3K27ac_distal <- length(which(scan(paste(cell,"_random_low_H3K27ac_intersect_mergedChipSeq.distal.txt",sep=""),what="numeric") > 0))/total_peaks_in_distal_random_peaks
+
 
 #bg_H3K27_distal_values <- as.numeric(random_distal_H3K27ac_table[,ncol(random_distal_H3K27ac_table)])
 #iles_5 <- quantile(bg_H3K27_distal_values, prob=seq(0,1,0.05))
@@ -82,11 +88,19 @@ for (group in rownames(mat_barplot_distal))
 {
         mat_barplot_distal[group,"random_low_H3K27ac"] <- sum(distal_random_low[match(grouping[[group]],distal_random_low[,1]),2])
 }
-print(colSums(mat_barplot_distal))
-bp_coords <- barplot(mat_barplot_distal, beside=FALSE, cex.main=0.9, col=unlist(cols_list), las=2, main=paste(cell, "distal"), xaxt="n", ylim=c(0,1), cex.axis=0.6, border=NA)
-axis(1, at=bp_coords, cex.axis=0.6, lwd=0,lwd.ticks=0, srt=45, labels=FALSE)
-text(x=bp_coords,  par("usr")[3]-0.01, labels=colnames(mat_barplot_distal), cex=0.6, srt = 30, pos = 2, xpd = TRUE)
-legend(6,0.8, names(cols_list), col=unlist(cols_list), pch=15, bty="n", cex=0.8, pt.cex=1.2)
+bp_coords <- barplot(mat_barplot_distal, beside=FALSE, cex.main=0.9, col=unlist(cols_list), las=2, main=paste(cell, "distal"), xaxt="n", ylim=c(0,1), cex.axis=0.6, border=NA, space=c(2,2,2,2))
+barplot(chipseq_dnase_high_H3K27ac_distal, space=bp_coords[1]+0.5, col="black", add=TRUE, axes=FALSE)
+barplot(chipseq_dnase_low_H3K27ac_distal, space=bp_coords[2]+0.5, col="black", add=TRUE, axes=FALSE)
+barplot(chipseq_random_high_H3K27ac_distal, space=bp_coords[3]+0.5, col="black", add=TRUE, axes=FALSE)
+barplot(chipseq_random_low_H3K27ac_distal, space=bp_coords[4]+0.5, col="black", add=TRUE, axes=FALSE)
+text(x=bp_coords+0.5,  par("usr")[3]-0.01, labels=colnames(mat_barplot_distal), cex=0.6, srt = 30, pos = 2, xpd = TRUE)
+legend(15,0.8, c(names(cols_list),"fraction with ChIP-seq intersection"), col=c(unlist(cols_list),"black"), pch=15, bty="n", cex=0.8, pt.cex=1.2)
+
+
+chipseq_dnase_high_H3K27ac_proximal <- length(which(scan(paste(cell,"_dnase_high_H3K27ac_intersect_mergedChipSeq.proximal.txt",sep=""),what="numeric") > 0))/total_peaks_in_proximal_dnase_peaks
+chipseq_dnase_low_H3K27ac_proximal <- length(which(scan(paste(cell,"_dnase_low_H3K27ac_intersect_mergedChipSeq.proximal.txt",sep=""),what="numeric") > 0))/total_peaks_in_proximal_dnase_peaks
+chipseq_random_high_H3K27ac_proximal <- length(which(scan(paste(cell,"_random_high_H3K27ac_intersect_mergedChipSeq.proximal.txt",sep=""),what="numeric") >0))/total_peaks_in_proximal_random_peaks
+chipseq_random_low_H3K27ac_proximal <- length(which(scan(paste(cell,"_random_low_H3K27ac_intersect_mergedChipSeq.proximal.txt",sep=""),what="numeric") > 0))/total_peaks_in_proximal_random_peaks
 
 mat_barplot_proximal <- matrix(nrow=length(grouping), ncol=4)
 rownames(mat_barplot_proximal) <- names(grouping)
@@ -125,8 +139,11 @@ for (group in rownames(mat_barplot_proximal))
 }
 
 
-bp_coords <- barplot(mat_barplot_proximal, beside=FALSE, cex.main=0.9, col=unlist(cols_list), las=2, main=paste(cell, "proximal"), xaxt="n", ylim=c(0,1), cex.axis=0.6,border=NA)
-axis(1, at=bp_coords, cex.axis=0.6, lwd=0,lwd.ticks=0, srt=45, labels=FALSE)
-text(x=bp_coords,  par("usr")[3]-0.01, labels=colnames(mat_barplot_proximal), cex=0.6, srt = 30, pos = 2, xpd = TRUE)
-legend(6,0.8, names(cols_list), col=unlist(cols_list), pch=15, bty="n", cex=0.8, pt.cex=1.2)
+bp_coords <- barplot(mat_barplot_proximal, beside=FALSE, cex.main=0.9, col=unlist(cols_list), las=2, main=paste(cell, "proximal"), xaxt="n", ylim=c(0,1), cex.axis=0.6,border=NA,space=c(2,2,2,2))
+barplot(chipseq_dnase_high_H3K27ac_proximal, space=bp_coords[1]+0.5, col="black", add=TRUE, axes=FALSE)
+barplot(chipseq_dnase_low_H3K27ac_proximal, space=bp_coords[2]+0.5, col="black", add=TRUE, axes=FALSE)
+barplot(chipseq_random_high_H3K27ac_proximal, space=bp_coords[3]+0.5, col="black", add=TRUE, axes=FALSE)
+barplot(chipseq_random_low_H3K27ac_proximal, space=bp_coords[4]+0.5, col="black", add=TRUE, axes=FALSE)
+text(x=bp_coords+0.5,  par("usr")[3]-0.01, labels=colnames(mat_barplot_proximal), cex=0.6, srt = 30, pos = 2, xpd = TRUE)
+legend(15,0.8, c(names(cols_list),"fraction with ChIP-seq intersection"), col=c(unlist(cols_list),"black"), pch=15, bty="n", cex=0.8, pt.cex=1.2)
 dev.off()
